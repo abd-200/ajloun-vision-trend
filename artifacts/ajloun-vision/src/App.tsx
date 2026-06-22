@@ -59,20 +59,74 @@ function Router() {
   );
 }
 
+import React, { Component, ErrorInfo, ReactNode } from "react";
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = {
+    hasError: false,
+    error: null,
+  };
+
+  public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[#F8F6F0] p-6 text-center" dir="rtl">
+          <div className="max-w-md w-full bg-white border rounded-2xl p-8 shadow-lg text-right">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">حدث خطأ في النظام</h2>
+            <p className="text-muted-foreground mb-6 text-sm">
+              فشل تحميل بعض مكونات الموقع. قد يكون ذلك بسبب تعذر الاتصال بملقم البيانات (API Backend) عند التشغيل على استضافة ساكنة مثل Netlify.
+            </p>
+            <div className="bg-zinc-50 p-4 rounded-lg text-left text-xs font-mono overflow-auto max-h-40 border border-red-200 text-red-500 mb-6">
+              {this.state.error?.toString()}
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-[#2D6A4F] hover:bg-[#1b4332] text-white py-2.5 rounded-md transition-colors font-medium"
+            >
+              إعادة تحميل الصفحة
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <AuthProvider>
-            <Layout>
-              <Router />
-            </Layout>
-          </AuthProvider>
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={(import.meta.env.BASE_URL || "").replace(/\/$/, "")}>
+            <AuthProvider>
+              <Layout>
+                <Router />
+              </Layout>
+            </AuthProvider>
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
