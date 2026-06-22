@@ -134,8 +134,8 @@
   --muted: 60 14% 85%;
   --muted-foreground: 60 7% 40%;
 
-  --accent: 26 40% 39%; /* #8C5E3C */
-  --accent-foreground: 45 33% 95%;
+  --accent: 46 65% 52%; /* Gold #D4AF37 */
+  --accent-foreground: 154 40% 10%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
@@ -145,14 +145,14 @@
   
   --chart-1: 154 40% 30%;
   --chart-2: 60 7% 51%;
-  --chart-3: 26 40% 39%;
+  --chart-3: 46 65% 52%;
   --chart-4: 154 30% 50%;
   --chart-5: 45 33% 70%;
 
-  --app-font-sans: 'Noto Sans Arabic', sans-serif;
+  --app-font-sans: 'Tajawal', 'Noto Sans Arabic', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
-  --radius: .5rem;
+  --radius: .75rem;
   --shadow-2xs: 0px 2px 0px 0px rgba(0,0,0, 0.05);
   --shadow-xs: 0px 2px 0px 0px rgba(0,0,0, 0.05);
   --shadow-sm: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 1px 2px -1px rgba(0,0,0, 0.05);
@@ -187,38 +187,38 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 154 40% 10%;
+  --background: 154 40% 7%;
   --foreground: 45 33% 95%;
-  --border: 154 20% 25%;
-  --card: 154 40% 12%;
+  --border: 154 20% 20%;
+  --card: 154 40% 9%;
   --card-foreground: 45 33% 95%;
-  --card-border: 154 20% 25%;
-  --sidebar: 154 40% 12%;
+  --card-border: 154 20% 20%;
+  --sidebar: 154 40% 9%;
   --sidebar-foreground: 45 33% 95%;
-  --sidebar-border: 154 20% 25%;
+  --sidebar-border: 154 20% 20%;
   --sidebar-primary: 154 40% 30%;
   --sidebar-primary-foreground: 45 33% 95%;
-  --sidebar-accent: 154 20% 25%;
+  --sidebar-accent: 154 20% 20%;
   --sidebar-accent-foreground: 45 33% 95%;
   --sidebar-ring: 154 40% 30%;
-  --popover: 154 40% 12%;
+  --popover: 154 40% 9%;
   --popover-foreground: 45 33% 95%;
-  --popover-border: 154 20% 25%;
-  --primary: 154 40% 40%;
+  --popover-border: 154 20% 20%;
+  --primary: 154 40% 35%;
   --primary-foreground: 45 33% 95%;
   --secondary: 60 7% 40%;
   --secondary-foreground: 45 33% 95%;
-  --muted: 154 20% 25%;
+  --muted: 154 20% 20%;
   --muted-foreground: 60 7% 70%;
-  --accent: 26 40% 45%;
+  --accent: 46 65% 42%;
   --accent-foreground: 45 33% 95%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
-  --input: 154 20% 25%;
-  --ring: 154 40% 40%;
-  --chart-1: 154 40% 40%;
+  --input: 154 20% 20%;
+  --ring: 154 40% 35%;
+  --chart-1: 154 40% 35%;
   --chart-2: 60 7% 40%;
-  --chart-3: 26 40% 45%;
+  --chart-3: 46 65% 42%;
   --chart-4: 154 30% 60%;
   --chart-5: 45 33% 80%;
 
@@ -238,6 +238,7 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Tajawal', 'Noto Sans Arabic', sans-serif;
   }
 }
 
@@ -299,5 +300,48 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  /* Glassmorphism Styles */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  .dark .glass-card {
+    background: rgba(20, 35, 30, 0.45);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glass-card-hover:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 12px 24px -10px rgba(45, 106, 79, 0.15);
+  }
+  .dark .glass-card-hover:hover {
+    background: rgba(20, 35, 30, 0.65);
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #AA820A 0%, #D4AF37 50%, #F3E5AB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-gradient-forest {
+    background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%);
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, #AA820A 0%, #D4AF37 100%);
   }
 }
