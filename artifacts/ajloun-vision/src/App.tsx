@@ -24,6 +24,14 @@ import AccessibilityPage from "@/pages/AccessibilityPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
 
+import { setBaseUrl } from "@workspace/api-client-react";
+
+// Configure backend API base URL if provided in environment variables
+const apiUrl = import.meta.env.VITE_API_URL;
+if (apiUrl) {
+  setBaseUrl(apiUrl);
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -367,5 +367,12 @@ export async function customFetch<T = unknown>(
     throw new ApiError(response, errorData, requestInfo);
   }
 
+  const mediaType = getMediaType(response.headers);
+  if (mediaType === "text/html") {
+    throw new TypeError(
+      `Expected API response, but received HTML content. This usually happens when the backend server is offline and the static hosting redirects API requests to index.html.`
+    );
+  }
+
   return (await parseSuccessBody(response, responseType, requestInfo)) as T;
 }

@@ -82,42 +82,49 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6">
             {featuredLoading ? (
               Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-80 rounded-xl" />)
-            ) : featured?.slice(0, 3).map((initiative) => (
-              <Card key={initiative.id} className="overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
-                {initiative.imageUrl ? (
-                  <div className="h-48 w-full bg-muted overflow-hidden relative">
-                    <img src={initiative.imageUrl} alt={initiative.titleAr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <Badge className="absolute top-3 right-3 bg-white/90 text-primary hover:bg-white">{initiative.category}</Badge>
-                  </div>
-                ) : (
-                  <div className="h-48 w-full bg-primary/10 flex items-center justify-center relative">
-                    <Target className="w-12 h-12 text-primary/30" />
-                    <Badge className="absolute top-3 right-3 bg-white/90 text-primary hover:bg-white">{initiative.category}</Badge>
-                  </div>
-                )}
-                <CardHeader className="flex-1">
-                  <CardTitle className="text-xl group-hover:text-primary transition-colors line-clamp-1">{initiative.titleAr}</CardTitle>
-                  <CardDescription className="line-clamp-2">{initiative.descriptionAr}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-1 ml-1" />
-                      <span>{initiative.participantsCount} مشارك</span>
+            ) : Array.isArray(featured) && featured.length > 0 ? (
+              featured.slice(0, 3).map((initiative) => (
+                <Card key={initiative.id} className="overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
+                  {initiative.imageUrl ? (
+                    <div className="h-48 w-full bg-muted overflow-hidden relative">
+                      <img src={initiative.imageUrl} alt={initiative.titleAr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Badge className="absolute top-3 right-3 bg-white/90 text-primary hover:bg-white">{initiative.category}</Badge>
                     </div>
-                    {initiative.location && (
+                  ) : (
+                    <div className="h-48 w-full bg-primary/10 flex items-center justify-center relative">
+                      <Target className="w-12 h-12 text-primary/30" />
+                      <Badge className="absolute top-3 right-3 bg-white/90 text-primary hover:bg-white">{initiative.category}</Badge>
+                    </div>
+                  )}
+                  <CardHeader className="flex-1">
+                    <CardTitle className="text-xl group-hover:text-primary transition-colors line-clamp-1">{initiative.titleAr}</CardTitle>
+                    <CardDescription className="line-clamp-2">{initiative.descriptionAr}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1 ml-1" />
-                        <span>{initiative.location}</span>
+                        <Users className="w-4 h-4 mr-1 ml-1" />
+                        <span>{initiative.participantsCount} مشارك</span>
                       </div>
-                    )}
-                  </div>
-                  <Button asChild className="w-full mt-4" variant="outline">
-                    <Link href={`/initiatives/${initiative.id}`}>تفاصيل المبادرة</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                      {initiative.location && (
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-1 ml-1" />
+                          <span>{initiative.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    <Button asChild className="w-full mt-4" variant="outline">
+                      <Link href={`/initiatives/${initiative.id}`}>تفاصيل المبادرة</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12 text-muted-foreground bg-muted/10 rounded-xl border border-dashed w-full">
+                <Target className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                <p className="text-sm">لا توجد مبادرات معروضة حالياً أو خادم البيانات غير متصل.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
