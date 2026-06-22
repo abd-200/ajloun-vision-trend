@@ -64,7 +64,7 @@ export default function Join() {
   };
 
   return (
-    <div className="container py-16 px-4 max-w-3xl">
+    <div className="container mx-auto py-16 px-4 max-w-3xl">
       <div className="text-center mb-12">
         <div className="inline-flex p-4 bg-primary/10 rounded-full mb-4 text-primary">
           <Users className="w-8 h-8" />

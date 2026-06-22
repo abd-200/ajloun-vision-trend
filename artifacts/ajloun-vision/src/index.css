@@ -344,4 +344,10 @@
   .bg-gradient-gold {
     background: linear-gradient(135deg, #AA820A 0%, #D4AF37 100%);
   }
+
+  /* Center all container elements globally to fix RTL right-alignment bug */
+  .container {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
