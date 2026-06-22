@@ -15,19 +15,21 @@ if (Number.isNaN(port) || port <= 0) {
 
 async function seedAdmin() {
   try {
-    const adminEmail = "admin@ajloun.org";
+    const adminEmail = "smadiabdalrahman446@gmail.com";
     const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, adminEmail));
     if (!existing) {
-      const passwordHash = await bcrypt.hash("admin-password-2026", 12);
+      const passwordHash = await bcrypt.hash("Abd@2004", 12);
       await db.insert(usersTable).values({
         email: adminEmail,
         passwordHash,
-        fullName: "Admin User",
-        fullNameAr: "مدير تيار رؤية عجلون",
+        fullName: "Abdulrahman Smadi",
+        fullNameAr: "عبدالرحمن الصمادي",
         role: "admin",
+        phone: "0775775812",
+        location: "عجلون",
         isActive: true,
       });
-      logger.info("SUCCESS: Default admin user seeded (admin@ajloun.org / admin-password-2026)");
+      logger.info("SUCCESS: Default admin user seeded (smadiabdalrahman446@gmail.com / Abd@2004)");
     } else {
       logger.info("Admin user already exists, skipping seeding.");
     }

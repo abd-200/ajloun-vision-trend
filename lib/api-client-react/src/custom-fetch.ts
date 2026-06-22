@@ -1,3 +1,5 @@
+import { isMockModeActive, setMockModeActive, handleMockRequest } from "./mock-api";
+
 export type CustomFetchOptions = RequestInit & {
   responseType?: "json" | "text" | "blob" | "auto";
 };
@@ -360,19 +362,61 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
-
-  if (!response.ok) {
-    const errorData = await parseErrorBody(response, method);
-    throw new ApiError(response, errorData, requestInfo);
+  // If mock mode is active, directly route to mock handler
+  if (isMockModeActive()) {
+    let parsedBody = undefined;
+    if (init.body) {
+      try {
+        parsedBody = typeof init.body === "string" ? JSON.parse(init.body) : init.body;
+      } catch (e) {
+        parsedBody = init.body;
+      }
+    }
+    return handleMockRequest<T>(requestInfo.url, method, parsedBody);
   }
 
-  const mediaType = getMediaType(response.headers);
-  if (mediaType === "text/html") {
-    throw new TypeError(
-      `Expected API response, but received HTML content. This usually happens when the backend server is offline and the static hosting redirects API requests to index.html.`
-    );
-  }
+  try {
+    const response = await fetch(input, { ...init, method, headers });
 
-  return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+    if (!response.ok) {
+      const errorData = await parseErrorBody(response, method);
+      throw new ApiError(response, errorData, requestInfo);
+    }
+
+    const mediaType = getMediaType(response.headers);
+    if (mediaType === "text/html") {
+      // Backend is offline (HTML redirect). Switch to mock mode!
+      console.warn("Backend server returned HTML. Switching to local mock/demo mode.");
+      setMockModeActive(true);
+      
+      let parsedBody = undefined;
+      if (init.body) {
+        try {
+          parsedBody = typeof init.body === "string" ? JSON.parse(init.body) : init.body;
+        } catch (e) {
+          parsedBody = init.body;
+        }
+      }
+      return handleMockRequest<T>(requestInfo.url, method, parsedBody);
+    }
+
+    return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    // For network errors (fetch failed, CORS, etc.), fallback to mock mode!
+    console.warn("Network request failed. Switching to local mock/demo mode.", error);
+    setMockModeActive(true);
+    
+    let parsedBody = undefined;
+    if (init.body) {
+      try {
+        parsedBody = typeof init.body === "string" ? JSON.parse(init.body) : init.body;
+      } catch (e) {
+        parsedBody = init.body;
+      }
+    }
+    return handleMockRequest<T>(requestInfo.url, method, parsedBody);
+  }
 }

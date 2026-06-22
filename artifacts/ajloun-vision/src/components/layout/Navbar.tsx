@@ -44,7 +44,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <img src="/logo.jpg" alt="شعار التيار" className="h-8 w-8 rounded-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          <span className="text-lg font-bold text-primary tracking-tight hidden sm:block">رؤية عجلون</span>
+          <span className="text-sm sm:text-lg font-bold text-primary tracking-tight">تيار رؤية عجلون الوطني</span>
         </Link>
 
         <nav className="hidden lg:flex gap-5 items-center flex-1 justify-center">
