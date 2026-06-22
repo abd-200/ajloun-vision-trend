@@ -1,0 +1,2029 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Ajloun Vision Trend Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: initiatives
+  - name: members
+  - name: knowledge
+  - name: stats
+  - name: posts
+  - name: opportunities
+  - name: points
+  - name: rewards
+  - name: notifications
+  - name: volunteer
+  - name: admin
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ──────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Validation error
+        "409":
+          description: Email already exists
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Unauthenticated
+
+  /auth/me/accessibility:
+    patch:
+      operationId: updateAccessibility
+      tags: [auth]
+      summary: Update accessibility settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessibilityInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+
+  /auth/me/profile:
+    patch:
+      operationId: updateProfile
+      tags: [auth]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+
+  # ─── INITIATIVES ───────────────────────────────────────
+  /initiatives:
+    get:
+      operationId: listInitiatives
+      tags: [initiatives]
+      summary: List all initiatives
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: category
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of initiatives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Initiative"
+    post:
+      operationId: createInitiative
+      tags: [initiatives]
+      summary: Create a new initiative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiativeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+
+  /initiatives/featured:
+    get:
+      operationId: listFeaturedInitiatives
+      tags: [initiatives]
+      summary: Featured initiatives
+      responses:
+        "200":
+          description: Featured
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Initiative"
+
+  /initiatives/{id}:
+    get:
+      operationId: getInitiative
+      tags: [initiatives]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Initiative
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateInitiative
+      tags: [initiatives]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiativeUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+    delete:
+      operationId: deleteInitiative
+      tags: [initiatives]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /initiatives/{id}/volunteer:
+    post:
+      operationId: volunteerForInitiative
+      tags: [volunteer]
+      summary: Volunteer for an initiative
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Signed up
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerSignup"
+
+  # ─── MEMBERS ───────────────────────────────────────────
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/{id}:
+    get:
+      operationId: getMember
+      tags: [members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMember
+      tags: [members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    delete:
+      operationId: deleteMember
+      tags: [members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /members/{id}/impact:
+    get:
+      operationId: getMemberImpact
+      tags: [members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Impact
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberImpact"
+
+  # ─── KNOWLEDGE ─────────────────────────────────────────
+  /knowledge:
+    get:
+      operationId: listKnowledge
+      tags: [knowledge]
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KnowledgeEntry"
+    post:
+      operationId: createKnowledge
+      tags: [knowledge]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeEntry"
+
+  /knowledge/{id}:
+    get:
+      operationId: getKnowledge
+      tags: [knowledge]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeEntry"
+    delete:
+      operationId: deleteKnowledge
+      tags: [knowledge]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── STATS ─────────────────────────────────────────────
+  /stats/overview:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /stats/initiatives-by-category:
+    get:
+      operationId: getInitiativesByCategory
+      tags: [stats]
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryCount"
+
+  /stats/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [stats]
+      responses:
+        "200":
+          description: Activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  # ─── POSTS / COMMUNITY FEED ────────────────────────────
+  /posts:
+    get:
+      operationId: listPosts
+      tags: [posts]
+      summary: List community feed posts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+    post:
+      operationId: createPost
+      tags: [posts]
+      summary: Create a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /posts/{id}:
+    delete:
+      operationId: deletePost
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+    patch:
+      operationId: updatePost
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostModerationInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /posts/{id}/like:
+    post:
+      operationId: likePost
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Liked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LikeResult"
+
+  /posts/{id}/comments:
+    get:
+      operationId: listComments
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createComment
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /posts/{id}/report:
+    post:
+      operationId: reportPost
+      tags: [posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "200":
+          description: Reported
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── OPPORTUNITIES ─────────────────────────────────────
+  /opportunities:
+    get:
+      operationId: listOpportunities
+      tags: [opportunities]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opportunity"
+    post:
+      operationId: createOpportunity
+      tags: [opportunities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+
+  /opportunities/{id}:
+    get:
+      operationId: getOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+    patch:
+      operationId: updateOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+    delete:
+      operationId: deleteOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── POINTS ────────────────────────────────────────────
+  /points/my:
+    get:
+      operationId: getMyPoints
+      tags: [points]
+      summary: Get current user points summary
+      responses:
+        "200":
+          description: Points
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsSummary"
+
+  /points/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [points]
+      summary: Top members by points
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /points/award:
+    post:
+      operationId: awardPoints
+      tags: [points]
+      summary: Award points to a user (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AwardPointsInput"
+      responses:
+        "200":
+          description: Points awarded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsSummary"
+
+  /points/transactions:
+    get:
+      operationId: listTransactions
+      tags: [points]
+      summary: List points transactions for current user
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PointsTransaction"
+
+  /points/users/{userId}/transactions:
+    get:
+      operationId: listUserTransactions
+      tags: [points]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PointsTransaction"
+
+  # ─── BADGES ────────────────────────────────────────────
+  /badges:
+    get:
+      operationId: listBadges
+      tags: [points]
+      responses:
+        "200":
+          description: Badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+    post:
+      operationId: createBadge
+      tags: [points]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+
+  /badges/{id}:
+    delete:
+      operationId: deleteBadge
+      tags: [points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /badges/award:
+    post:
+      operationId: awardBadge
+      tags: [points]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AwardBadgeInput"
+      responses:
+        "200":
+          description: Awarded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /badges/user/{userId}:
+    get:
+      operationId: getUserBadges
+      tags: [points]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+
+  # ─── REWARDS / STORE ───────────────────────────────────
+  /rewards:
+    get:
+      operationId: listRewards
+      tags: [rewards]
+      responses:
+        "200":
+          description: Rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reward"
+    post:
+      operationId: createReward
+      tags: [rewards]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RewardInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reward"
+
+  /rewards/{id}:
+    patch:
+      operationId: updateReward
+      tags: [rewards]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RewardInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reward"
+    delete:
+      operationId: deleteReward
+      tags: [rewards]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /rewards/{id}/claim:
+    post:
+      operationId: claimReward
+      tags: [rewards]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claimed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /rewards/claims:
+    get:
+      operationId: listClaims
+      tags: [rewards]
+      summary: List all reward claims (admin)
+      responses:
+        "200":
+          description: Claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RewardClaim"
+
+  /rewards/claims/{id}/status:
+    patch:
+      operationId: updateClaimStatus
+      tags: [rewards]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimStatusInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RewardClaim"
+
+  # ─── NOTIFICATIONS ─────────────────────────────────────
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      operationId: sendNotification
+      tags: [notifications]
+      summary: Send notification to user(s) (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationInput"
+      responses:
+        "201":
+          description: Sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      responses:
+        "200":
+          description: All marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── ADMIN ─────────────────────────────────────────────
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [admin]
+      summary: List all users (admin)
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuthUser"
+
+  /admin/users/{id}:
+    patch:
+      operationId: adminUpdateUser
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+    delete:
+      operationId: adminDeleteUser
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /admin/reported-posts:
+    get:
+      operationId: listReportedPosts
+      tags: [admin]
+      responses:
+        "200":
+          description: Reported posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+
+  /admin/volunteer-signups:
+    get:
+      operationId: listVolunteerSignups
+      tags: [admin]
+      responses:
+        "200":
+          description: Signups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VolunteerSignup"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    # ─── AUTH ─────────────────────────────
+    RegisterInput:
+      type: object
+      required: [email, password, fullName, fullNameAr]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 6
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        location:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthUser:
+      type: object
+      required: [id, email, fullName, fullNameAr, role, volunteerPoints, trainingPoints, activityPoints, totalPoints, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        role:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        accessibilityFontLarge:
+          type: boolean
+        accessibilityHighContrast:
+          type: boolean
+        accessibilityScreenReader:
+          type: boolean
+        volunteerPoints:
+          type: string
+        trainingPoints:
+          type: string
+        activityPoints:
+          type: string
+        totalPoints:
+          type: string
+        createdAt:
+          type: string
+
+    AccessibilityInput:
+      type: object
+      properties:
+        accessibilityFontLarge:
+          type: boolean
+        accessibilityHighContrast:
+          type: boolean
+        accessibilityScreenReader:
+          type: boolean
+
+    ProfileInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        bio:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+
+    # ─── INITIATIVES ──────────────────────
+    Initiative:
+      type: object
+      required: [id, title, titleAr, description, descriptionAr, status, category, participantsCount, isFeatured, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        participantsCount:
+          type: integer
+        targetParticipants:
+          type: ["integer", "null"]
+        progressPercent:
+          type: ["integer", "null"]
+        isFeatured:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    InitiativeInput:
+      type: object
+      required: [title, titleAr, description, descriptionAr, status, category]
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        targetParticipants:
+          type: ["integer", "null"]
+        progressPercent:
+          type: ["integer", "null"]
+        isFeatured:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+
+    InitiativeUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        targetParticipants:
+          type: ["integer", "null"]
+        progressPercent:
+          type: ["integer", "null"]
+        isFeatured:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+
+    VolunteerSignup:
+      type: object
+      required: [id, userId, initiativeId, status, hoursLogged, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        initiativeId:
+          type: integer
+        status:
+          type: string
+        hoursLogged:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    # ─── MEMBERS ──────────────────────────
+    Member:
+      type: object
+      required: [id, fullName, fullNameAr, email, role, joinedAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        bioAr:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        initiativesCount:
+          type: integer
+        impactScore:
+          type: integer
+        isActive:
+          type: boolean
+        joinedAt:
+          type: string
+
+    MemberInput:
+      type: object
+      required: [fullName, fullNameAr, email]
+      properties:
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        bioAr:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+
+    MemberUpdate:
+      type: object
+      properties:
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        bioAr:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    MemberImpact:
+      type: object
+      required: [memberId, initiativesJoined, initiativesLed, impactScore, badges]
+      properties:
+        memberId:
+          type: integer
+        initiativesJoined:
+          type: integer
+        initiativesLed:
+          type: integer
+        impactScore:
+          type: integer
+        badges:
+          type: array
+          items:
+            type: string
+        recentInitiatives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Initiative"
+
+    # ─── KNOWLEDGE ────────────────────────
+    KnowledgeEntry:
+      type: object
+      required: [id, title, titleAr, content, contentAr, category, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        titleAr:
+          type: string
+        content:
+          type: string
+        contentAr:
+          type: string
+        category:
+          type: string
+        order:
+          type: integer
+        createdAt:
+          type: string
+
+    KnowledgeInput:
+      type: object
+      required: [title, titleAr, content, contentAr, category]
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        content:
+          type: string
+        contentAr:
+          type: string
+        category:
+          type: string
+        order:
+          type: integer
+
+    # ─── STATS ────────────────────────────
+    PlatformStats:
+      type: object
+      required: [totalInitiatives, activeInitiatives, completedInitiatives, totalMembers, totalImpactActions]
+      properties:
+        totalInitiatives:
+          type: integer
+        activeInitiatives:
+          type: integer
+        completedInitiatives:
+          type: integer
+        totalMembers:
+          type: integer
+        totalImpactActions:
+          type: integer
+        governoratesCovered:
+          type: integer
+        totalPosts:
+          type: integer
+        totalOpportunities:
+          type: integer
+
+    CategoryCount:
+      type: object
+      required: [category, count]
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+
+    ActivityItem:
+      type: object
+      required: [id, type, title, titleAr, timestamp]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+
+    # ─── POSTS ────────────────────────────
+    Post:
+      type: object
+      required: [id, userId, content, likesCount, commentsCount, isApproved, isPinned, isHidden, reportCount, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        authorName:
+          type: string
+        authorNameAr:
+          type: string
+        authorAvatar:
+          type: ["string", "null"]
+        content:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        likesCount:
+          type: integer
+        commentsCount:
+          type: integer
+        isApproved:
+          type: boolean
+        isPinned:
+          type: boolean
+        isHidden:
+          type: boolean
+        reportCount:
+          type: integer
+        likedByMe:
+          type: boolean
+        createdAt:
+          type: string
+
+    PostInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+        imageUrl:
+          type: ["string", "null"]
+
+    PostModerationInput:
+      type: object
+      properties:
+        isApproved:
+          type: boolean
+        isPinned:
+          type: boolean
+        isHidden:
+          type: boolean
+
+    LikeResult:
+      type: object
+      required: [liked, likesCount]
+      properties:
+        liked:
+          type: boolean
+        likesCount:
+          type: integer
+
+    Comment:
+      type: object
+      required: [id, postId, userId, content, createdAt]
+      properties:
+        id:
+          type: integer
+        postId:
+          type: integer
+        userId:
+          type: integer
+        authorName:
+          type: string
+        authorNameAr:
+          type: string
+        authorAvatar:
+          type: ["string", "null"]
+        content:
+          type: string
+        isHidden:
+          type: boolean
+        createdAt:
+          type: string
+
+    CommentInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+
+    ReportInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    # ─── OPPORTUNITIES ────────────────────
+    Opportunity:
+      type: object
+      required: [id, title, titleAr, description, descriptionAr, type, organization, isRemote, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        type:
+          type: string
+        organization:
+          type: string
+        location:
+          type: ["string", "null"]
+        isRemote:
+          type: boolean
+        deadline:
+          type: ["string", "null"]
+        link:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    OpportunityInput:
+      type: object
+      required: [title, titleAr, description, descriptionAr, type, organization]
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        type:
+          type: string
+        organization:
+          type: string
+        location:
+          type: ["string", "null"]
+        isRemote:
+          type: boolean
+        deadline:
+          type: ["string", "null"]
+        link:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    # ─── POINTS ───────────────────────────
+    PointsSummary:
+      type: object
+      required: [userId, volunteerPoints, trainingPoints, activityPoints, totalPoints]
+      properties:
+        userId:
+          type: integer
+        volunteerPoints:
+          type: integer
+        trainingPoints:
+          type: integer
+        activityPoints:
+          type: integer
+        totalPoints:
+          type: integer
+
+    PointsTransaction:
+      type: object
+      required: [id, userId, type, category, points, description, descriptionAr, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        category:
+          type: string
+        points:
+          type: integer
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        createdAt:
+          type: string
+
+    AwardPointsInput:
+      type: object
+      required: [userId, points, category, descriptionAr]
+      properties:
+        userId:
+          type: integer
+        points:
+          type: integer
+        category:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+
+    LeaderboardEntry:
+      type: object
+      required: [userId, fullName, fullNameAr, totalPoints, rank]
+      properties:
+        userId:
+          type: integer
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        totalPoints:
+          type: integer
+        rank:
+          type: integer
+
+    Badge:
+      type: object
+      required: [id, name, nameAr, description, descriptionAr, icon, color, requiredPoints, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+        requiredPoints:
+          type: integer
+        createdAt:
+          type: string
+
+    BadgeInput:
+      type: object
+      required: [name, nameAr, requiredPoints]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+        requiredPoints:
+          type: integer
+
+    AwardBadgeInput:
+      type: object
+      required: [userId, badgeId]
+      properties:
+        userId:
+          type: integer
+        badgeId:
+          type: integer
+
+    # ─── REWARDS ──────────────────────────
+    Reward:
+      type: object
+      required: [id, title, titleAr, description, descriptionAr, pointsCost, stock, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        pointsCost:
+          type: integer
+        stock:
+          type: integer
+        imageUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    RewardInput:
+      type: object
+      required: [title, titleAr, pointsCost, stock]
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        pointsCost:
+          type: integer
+        stock:
+          type: integer
+        imageUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    RewardClaim:
+      type: object
+      required: [id, userId, rewardId, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        rewardId:
+          type: integer
+        rewardTitle:
+          type: string
+        rewardTitleAr:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+
+    ClaimStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    # ─── NOTIFICATIONS ────────────────────
+    Notification:
+      type: object
+      required: [id, userId, type, title, titleAr, body, bodyAr, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        titleAr:
+          type: string
+        body:
+          type: string
+        bodyAr:
+          type: string
+        isRead:
+          type: boolean
+        link:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    NotificationInput:
+      type: object
+      required: [titleAr, bodyAr]
+      properties:
+        userId:
+          type: ["integer", "null"]
+        type:
+          type: string
+        title:
+          type: string
+        titleAr:
+          type: string
+        body:
+          type: string
+        bodyAr:
+          type: string
+        link:
+          type: ["string", "null"]
+        sendToAll:
+          type: boolean
+
+    # ─── ADMIN ────────────────────────────
+    AdminUserUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+        isActive:
+          type: boolean
+        fullName:
+          type: string
+        fullNameAr:
+          type: string
+        volunteerPoints:
+          type: string
+        trainingPoints:
+          type: string
+        activityPoints:
+          type: string
+        totalPoints:
+          type: string

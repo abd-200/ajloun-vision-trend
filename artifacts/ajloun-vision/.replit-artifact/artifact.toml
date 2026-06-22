@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "منصة تيار رؤية عجلون"
+version = "1.0.0"
+id = "artifacts/ajloun-vision"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21206
+
+[services.development]
+run = "pnpm --filter @workspace/ajloun-vision run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ajloun-vision", "run", "build" ]
+publicDir = "artifacts/ajloun-vision/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21206"
+BASE_PATH = "/"
